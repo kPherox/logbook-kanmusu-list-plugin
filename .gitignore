@@ -17,3 +17,6 @@ hs_err_pid*
 
 # IDEA file
 .idea/
+
+# output directory
+target/
