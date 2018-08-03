@@ -22,7 +22,7 @@ public class KanmusuListGeneratorController extends WindowController {
 
     @FXML
     void create(ActionEvent event) {
-        Map<Integer, String> ships = new HashMap<Integer, String>();
+        Map<Integer, StringJoiner> ships = new HashMap<Integer, StringJoiner>();
         for (Ship ship : ShipCollection.get().getShipMap().values()) {
             int lv = ship.getLv();
             int shipId = ship.getShipId();
@@ -32,17 +32,16 @@ public class KanmusuListGeneratorController extends WindowController {
             int charId = charIdAndLvSuffix.getKey();
             int lvSuffix = charIdAndLvSuffix.getValue();
 
-            if (ships.containsKey(charId)) {
-                ships.put(charId, ships.get(charId) + "," + lv + "." + lvSuffix);
-            } else {
-                ships.put(charId, lv + "." + lvSuffix);
+            if (! ships.containsKey(charId)) {
+                ships.put(charId, new StringJoiner(","));
             }
+            ships.get(charId).add(lv + "." + lvSuffix);
         }
         StringJoiner format = new StringJoiner("|");
         // 艦隊晒しのprefix
         format.add(".2");
         ships.forEach((id, value) -> {
-            format.add(id + ":" + value);
+            format.add(id + ":" + value.toString());
         });
         this.kanmusuList.setText(format.toString());
     }
