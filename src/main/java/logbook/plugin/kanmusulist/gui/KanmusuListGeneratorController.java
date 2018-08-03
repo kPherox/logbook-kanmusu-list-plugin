@@ -4,7 +4,6 @@ import java.util.AbstractMap.SimpleEntry;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.StringJoiner;
-import java.util.stream.Collectors;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -23,7 +22,7 @@ public class KanmusuListGeneratorController extends WindowController {
 
     @FXML
     void create(ActionEvent event) {
-        Map<Integer, String> format = new HashMap<Integer, String>();
+        Map<Integer, String> ships = new HashMap<Integer, String>();
         for (Ship ship : ShipCollection.get().getShipMap().values()) {
             int lv = ship.getLv();
             int shipId = ship.getShipId();
@@ -33,19 +32,19 @@ public class KanmusuListGeneratorController extends WindowController {
             int charId = charIdAndLvSuffix.getKey();
             int lvSuffix = charIdAndLvSuffix.getValue();
 
-            if (format.containsKey(charId)) {
-                format.put(charId, String.format("%s,%d.%d", format.get(charId), lv, lvSuffix));
+            if (ships.containsKey(charId)) {
+                ships.put(charId, String.format("%s,%d.%d", ships.get(charId), lv, lvSuffix));
             } else {
-                format.put(charId, String.format("%d.%d", lv, lvSuffix));
+                ships.put(charId, String.format("%d.%d", lv, lvSuffix));
             }
         }
-        StringJoiner result = new StringJoiner("|");
+        StringJoiner format = new StringJoiner("|");
         // 艦隊晒しのprefix
-        result.add(".2");
-        format.forEach((id, value) -> {
-            result.add(String.format("%d:%s", id, value));
+        format.add(".2");
+        ships.forEach((id, value) -> {
+            format.add(String.format("%d:%s", id, value));
         });
-        this.kanmusuList.setText(result.toString());
+        this.kanmusuList.setText(format.toString());
     }
 
     private Map<Integer, Integer> getShipIdAndBeforeId() {
