@@ -16,6 +16,7 @@
       <HBox alignment="BASELINE_LEFT" prefWidth="394.0" spacing="3.0">
          <children>
             <Button mnemonicParsing="false" onAction="#create" text="生成" minWidth="50.0" prefWidth="50.0" />
+            <Button mnemonicParsing="false" onAction="#copyToClipboard" text="クリップボードにコピー" minWidth="50.0" />
             <Label fx:id="result" />
          </children>
       </HBox>

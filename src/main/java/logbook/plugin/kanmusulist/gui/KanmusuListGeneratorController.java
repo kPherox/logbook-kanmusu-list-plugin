@@ -9,6 +9,8 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Label;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
 
 import logbook.bean.Ship;
 import logbook.bean.ShipCollection;
@@ -23,6 +25,17 @@ public class KanmusuListGeneratorController extends WindowController {
 
     @FXML
     private TextField kanmusuList;
+
+    @FXML
+    void copyToClipboard(ActionEvent event) {
+        this.result.setText("生成しています...");
+
+        ClipboardContent content = new ClipboardContent();
+        content.putString(this.format());
+        boolean result = Clipboard.getSystemClipboard().setContent(content);
+
+        this.result.setText(result ? "クリップボードにコピーしました！" : "クリップボードへのコピーに失敗しました");
+    }
 
     @FXML
     void create(ActionEvent event) {
