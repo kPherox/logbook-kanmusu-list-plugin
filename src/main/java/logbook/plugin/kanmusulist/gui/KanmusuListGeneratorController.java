@@ -8,6 +8,7 @@ import java.util.StringJoiner;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Label;
 
 import logbook.bean.Ship;
 import logbook.bean.ShipCollection;
@@ -18,10 +19,21 @@ import logbook.internal.gui.WindowController;
 public class KanmusuListGeneratorController extends WindowController {
 
     @FXML
+    private Label result;
+
+    @FXML
     private TextField kanmusuList;
 
     @FXML
     void create(ActionEvent event) {
+        this.result.setText("生成しています...");
+
+        this.kanmusuList.setText(this.format());
+
+        this.result.setText("生成しました！");
+    }
+
+    private String format() {
         Map<Integer, StringJoiner> ships = new HashMap<Integer, StringJoiner>();
         for (Ship ship : ShipCollection.get().getShipMap().values()) {
             int lv = ship.getLv();
@@ -43,7 +55,8 @@ public class KanmusuListGeneratorController extends WindowController {
         ships.forEach((id, value) -> {
             format.add(id + ":" + value.toString());
         });
-        this.kanmusuList.setText(format.toString());
+
+        return format.toString();
     }
 
     private Map<Integer, Integer> getShipIdAndBeforeId() {

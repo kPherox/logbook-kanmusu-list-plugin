@@ -7,15 +7,18 @@
 <?import javafx.geometry.Insets?>
 
 <?import javafx.scene.layout.HBox?>
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="30.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/8.0.131" xmlns:fx="http://javafx.com/fxml/1" fx:controller="logbook.plugin.kanmusulist.gui.KanmusuListGeneratorController">
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="80.0" prefWidth="400.0" spacing="3.0" xmlns="http://javafx.com/javafx/8.0.131" xmlns:fx="http://javafx.com/fxml/1" fx:controller="logbook.plugin.kanmusulist.gui.KanmusuListGeneratorController">
    <padding>
       <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
    </padding>
    <children>
       <Label text="艦隊晒しページのフォーマットを生成します" />
       <HBox alignment="BASELINE_LEFT" prefWidth="394.0" spacing="3.0">
-         <Button mnemonicParsing=" false" onAction="#create" text="生成" minWidth="50.0" prefWidth="50.0" />
-         <TextField fx:id="kanmusuList" HBox.hgrow="ALWAYS" />
+         <children>
+            <Button mnemonicParsing="false" onAction="#create" text="生成" minWidth="50.0" prefWidth="50.0" />
+            <Label fx:id="result" />
+         </children>
       </HBox>
+      <TextField fx:id="kanmusuList" />
    </children>
 </VBox>
