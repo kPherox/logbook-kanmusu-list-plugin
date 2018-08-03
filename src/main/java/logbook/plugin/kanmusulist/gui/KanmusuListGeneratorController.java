@@ -49,19 +49,18 @@ public class KanmusuListGeneratorController extends WindowController {
     }
 
     private Map<Integer, Integer> getShipIdAndBeforeId() {
-        Map<Integer, Integer> shipIdAndAfterId = new HashMap<Integer, Integer>();
-        // マスターデータからShipIDと改造先のMapを作成する
+        Map<Integer, Integer> shipIdAndBeforeId = new HashMap<Integer, Integer>();
+        // マスターデータから改造前と後のMapを作成する
         for (ShipMst ship : ShipMstCollection.get().getShipMap().values()) {
-            // 改造先がないか、すでに追加されているならスキップ（コンバートが該当するはず）
+            // 改造先がない、もしくは既に追加されていてShipIDが追加されているものより大きい場合（コンバート改装）はスキップ
             Integer afterShipId = ship.getAftershipid();
-            if (afterShipId == null || shipIdAndAfterId.containsValue(afterShipId)) {
+            int shipId = ship.getId();
+            if (afterShipId == null || shipIdAndBeforeId.containsKey(afterShipId) && shipIdAndBeforeId.get(afterShipId) < shipId) {
                 continue;
             }
-            // 改造元と改造先を追加
-            shipIdAndAfterId.put(ship.getId(), afterShipId);
+            // 改造前と後を追加
+            shipIdAndBeforeId.put(afterShipId, shipId);
         }
-        // 入れ替えて改造後ではなく改造前を取得するMapにする
-        Map<Integer, Integer> shipIdAndBeforeId = shipIdAndAfterId.entrySet().stream().collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey));
 
         return shipIdAndBeforeId;
     }
