@@ -20,6 +20,8 @@ import logbook.internal.gui.WindowController;
 
 public class KanmusuListGeneratorController extends WindowController {
 
+    private String format = "";
+
     @FXML
     private Label result;
 
@@ -28,10 +30,10 @@ public class KanmusuListGeneratorController extends WindowController {
 
     @FXML
     void copyToClipboard(ActionEvent event) {
-        this.result.setText("生成しています...");
+        this.create(event);
 
         ClipboardContent content = new ClipboardContent();
-        content.putString(this.format());
+        content.putString(this.format);
         boolean result = Clipboard.getSystemClipboard().setContent(content);
 
         this.result.setText(result ? "クリップボードにコピーしました！" : "クリップボードへのコピーに失敗しました");
@@ -41,12 +43,12 @@ public class KanmusuListGeneratorController extends WindowController {
     void create(ActionEvent event) {
         this.result.setText("生成しています...");
 
-        this.kanmusuList.setText(this.format());
+        this.generate();
 
         this.result.setText("生成しました！");
     }
 
-    private String format() {
+    private void generate() {
         Map<Integer, StringJoiner> ships = new HashMap<Integer, StringJoiner>();
         for (Ship ship : ShipCollection.get().getShipMap().values()) {
             int lv = ship.getLv();
@@ -69,7 +71,9 @@ public class KanmusuListGeneratorController extends WindowController {
             format.add(id + ":" + value.toString());
         });
 
-        return format.toString();
+        this.format = format.toString();
+
+        this.kanmusuList.setText(this.format);
     }
 
     private Map<Integer, Integer> getShipIdAndBeforeId() {
