@@ -9,6 +9,7 @@ import java.util.List;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
@@ -30,6 +31,9 @@ public class KanmusuListGeneratorController extends WindowController {
 
     @FXML
     private TextField kanmusuList;
+
+    @FXML
+    private CheckBox isExclusionDuplicateLv1;
 
     @FXML
     void copyToClipboard(ActionEvent event) {
@@ -70,6 +74,7 @@ public class KanmusuListGeneratorController extends WindowController {
 
         this.format = ships.entrySet().stream()
             .map(shipEntry -> shipEntry.getValue().stream()
+                .filter(level -> shipEntry.getValue().size() == 1 || !(level.getKey() == 1 && this.isExclusionDuplicateLv1.isSelected()))
                 .map(level -> level.getKey() + "." + level.getValue())
                 .collect(joining(",", shipEntry.getKey() + ":", "")))
             .collect(joining("|", ".2|", ""));
