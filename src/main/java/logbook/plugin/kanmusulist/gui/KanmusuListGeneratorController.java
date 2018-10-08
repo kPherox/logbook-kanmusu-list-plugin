@@ -3,7 +3,8 @@ package logbook.plugin.kanmusulist.gui;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.StringJoiner;
+import java.util.ArrayList;
+import java.util.List;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -17,6 +18,8 @@ import logbook.bean.ShipCollection;
 import logbook.bean.ShipMst;
 import logbook.bean.ShipMstCollection;
 import logbook.internal.gui.WindowController;
+
+import static java.util.stream.Collectors.joining;
 
 public class KanmusuListGeneratorController extends WindowController {
 
@@ -49,7 +52,7 @@ public class KanmusuListGeneratorController extends WindowController {
     }
 
     private void generate() {
-        Map<Integer, StringJoiner> ships = new HashMap<Integer, StringJoiner>();
+        Map<Integer, List<SimpleEntry<Integer, Integer>>> ships = new HashMap<>();
         for (Ship ship : ShipCollection.get().getShipMap().values()) {
             int lv = ship.getLv();
             int shipId = ship.getShipId();
@@ -60,24 +63,22 @@ public class KanmusuListGeneratorController extends WindowController {
             int lvSuffix = charIdAndLvSuffix.getValue();
 
             if (! ships.containsKey(charId)) {
-                ships.put(charId, new StringJoiner(","));
+                ships.put(charId, new ArrayList<>());
             }
-            ships.get(charId).add(lv + "." + lvSuffix);
+            ships.get(charId).add(new SimpleEntry<>(lv, lvSuffix));
         }
-        StringJoiner format = new StringJoiner("|");
-        // 艦隊晒しのprefix
-        format.add(".2");
-        ships.forEach((id, value) -> {
-            format.add(id + ":" + value.toString());
-        });
 
-        this.format = format.toString();
+        this.format = ships.entrySet().stream()
+            .map(shipEntry -> shipEntry.getValue().stream()
+                .map(level -> level.getKey() + "." + level.getValue())
+                .collect(joining(",", shipEntry.getKey() + ":", "")))
+            .collect(joining("|", ".2|", ""));
 
         this.kanmusuList.setText(this.format);
     }
 
     private Map<Integer, Integer> getShipIdAndBeforeId() {
-        Map<Integer, Integer> shipIdAndBeforeId = new HashMap<Integer, Integer>();
+        Map<Integer, Integer> shipIdAndBeforeId = new HashMap<>();
         // マスターデータから改造前と後のMapを作成する
         for (ShipMst ship : ShipMstCollection.get().getShipMap().values()) {
             // 改造先がない、もしくは既に追加されていてShipIDが追加されているものより大きい場合（コンバート改装）はスキップ
@@ -102,7 +103,7 @@ public class KanmusuListGeneratorController extends WindowController {
         }
 
         // 改造前の値がない場合はSimpleEntryを返す
-        return new SimpleEntry<Integer, Integer>(shipId, count);
+        return new SimpleEntry<>(shipId, count);
     }
 
     private SimpleEntry<Integer, Integer> getCharIdAndLvSuffix(int shipId) {
