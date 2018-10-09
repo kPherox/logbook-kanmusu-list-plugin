@@ -35,7 +35,10 @@ public class KanmusuListGeneratorController extends WindowController {
     private TextField kanmusuList;
 
     @FXML
-    private CheckBox isExclusionDuplicateLv1;
+    private CheckBox exclusionDuplicateLv1;
+
+    @FXML
+    private CheckBox inclusionDuplicateLocked;
 
     @FXML
     void copyToClipboard(ActionEvent event) {
@@ -58,40 +61,38 @@ public class KanmusuListGeneratorController extends WindowController {
     }
 
     private void generate() {
-        this.shipIdAndBeforeId = this.generateShipIdAndBeforeId();
-        Map<Integer, List<SimpleEntry<Integer, Integer>>> ships = new HashMap<>();
-        for (Ship ship : ShipCollection.get().getShipMap().values()) {
-            int lv = ship.getLv();
-            int shipId = ship.getShipId();
+        this.generateShipIdAndBeforeId();
 
+        Map<Integer, List<SimpleEntry<Integer, Ship>>> ships = new HashMap<>();
+        for (Ship ship : ShipCollection.get().getShipMap().values()) {
             // 初期のShip IDと改造数を取得する
-            SimpleEntry<Integer, Integer> charIdAndLvSuffix = this.getCharIdAndLvSuffix(shipId);
+            SimpleEntry<Integer, Integer> charIdAndLvSuffix = this.getCharIdAndLvSuffix(ship.getShipId());
             int charId = charIdAndLvSuffix.getKey();
             int lvSuffix = charIdAndLvSuffix.getValue();
 
             if (! ships.containsKey(charId)) {
                 ships.put(charId, new ArrayList<>());
             }
-            ships.get(charId).add(new SimpleEntry<>(lv, lvSuffix));
+            ships.get(charId).add(new SimpleEntry<>(lvSuffix, ship));
         }
 
         this.format = ships.entrySet().stream()
             .map(shipEntry -> shipEntry.getValue().stream()
-                .filter(level -> shipEntry.getValue().size() == 1 || !(level.getKey() == 1 && this.isExclusionDuplicateLv1.isSelected()))
-                .map(level -> level.getKey() + "." + level.getValue())
+                .filter(ship -> shipEntry.getValue().size() == 1
+                                || !(this.exclusionDuplicateLv1.isSelected() && ship.getValue().getLv() == 1)
+                                || (this.inclusionDuplicateLocked.isSelected() && ship.getValue().getLocked()))
+                .map(ship -> ship.getValue().getLv() + "." + ship.getKey())
                 .collect(joining(",", shipEntry.getKey() + ":", "")))
             .collect(joining("|", ".2|", ""));
 
         this.kanmusuList.setText(this.format);
     }
 
-    private Map<Integer, Integer> generateShipIdAndBeforeId() {
+    private void generateShipIdAndBeforeId() {
         // マスターデータから改造前と後のMapを作成する
-        Map<Integer, Integer> shipIdAndBeforeId = ShipMstCollection.get().getShipMap().values().stream()
+        this.shipIdAndBeforeId = ShipMstCollection.get().getShipMap().values().stream()
             .filter(ship -> ship.getAftershipid() != null) // 改造先がない場合は含まない
             .collect(toMap(ship -> ship.getAftershipid(), ship -> ship.getId(), (old, shipId) -> shipId > old ? old : shipId)); // 既に追加されていてShipIDが追加されているものより大きい場合（コンバート改装）は変更しない
-
-        return shipIdAndBeforeId;
     }
 
     private SimpleEntry<Integer, Integer> charIdAndLvSuffix(int shipId, int count) {

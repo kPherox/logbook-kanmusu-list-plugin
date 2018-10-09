@@ -21,7 +21,8 @@
             <Label fx:id="result" />
          </children>
       </HBox>
-      <CheckBox fx:id="isExclusionDuplicateLv1" mnemonicParsing="false" text="重複した艦娘からLv1を除外する" />
+      <CheckBox fx:id="exclusionDuplicateLv1" mnemonicParsing="false" text="重複した艦娘からLv1を除外する" />
+      <CheckBox fx:id="inclusionDuplicateLocked" mnemonicParsing="false" text="重複しているロック済みの艦娘を含む" />
       <TextField fx:id="kanmusuList" />
    </children>
 </VBox>
