@@ -21,10 +21,12 @@ import logbook.bean.ShipMstCollection;
 import logbook.internal.gui.WindowController;
 
 import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toMap;
 
 public class KanmusuListGeneratorController extends WindowController {
 
     private String format = "";
+    private Map<Integer, Integer> shipIdAndBeforeId = new HashMap<>();
 
     @FXML
     private Label result;
@@ -56,6 +58,7 @@ public class KanmusuListGeneratorController extends WindowController {
     }
 
     private void generate() {
+        this.shipIdAndBeforeId = this.generateShipIdAndBeforeId();
         Map<Integer, List<SimpleEntry<Integer, Integer>>> ships = new HashMap<>();
         for (Ship ship : ShipCollection.get().getShipMap().values()) {
             int lv = ship.getLv();
@@ -82,29 +85,20 @@ public class KanmusuListGeneratorController extends WindowController {
         this.kanmusuList.setText(this.format);
     }
 
-    private Map<Integer, Integer> getShipIdAndBeforeId() {
-        Map<Integer, Integer> shipIdAndBeforeId = new HashMap<>();
+    private Map<Integer, Integer> generateShipIdAndBeforeId() {
         // マスターデータから改造前と後のMapを作成する
-        for (ShipMst ship : ShipMstCollection.get().getShipMap().values()) {
-            // 改造先がない、もしくは既に追加されていてShipIDが追加されているものより大きい場合（コンバート改装）はスキップ
-            Integer afterShipId = ship.getAftershipid();
-            int shipId = ship.getId();
-            if (afterShipId == null || shipIdAndBeforeId.containsKey(afterShipId) && shipIdAndBeforeId.get(afterShipId) < shipId) {
-                continue;
-            }
-            // 改造前と後を追加
-            shipIdAndBeforeId.put(afterShipId, shipId);
-        }
+        Map<Integer, Integer> shipIdAndBeforeId = ShipMstCollection.get().getShipMap().values().stream()
+            .filter(ship -> ship.getAftershipid() != null && ship.getId() < ship.getAftershipid()) // 改造先がない、もしくはShipIDが改造先より大きい場合（コンバート改装）は含まない
+            .collect(toMap(ship -> ship.getAftershipid(), ship -> ship.getId()));
 
         return shipIdAndBeforeId;
     }
 
-    private SimpleEntry<Integer, Integer> charIdAndLvSuffix(Map<Integer, Integer> shipIdAndBeforeId, int shipId, int count) {
-        count++;
+    private SimpleEntry<Integer, Integer> charIdAndLvSuffix(int shipId, int count) {
         if (shipIdAndBeforeId.containsKey(shipId)) {
             // 改造前の値がある場合は再帰処理
-            int beforeShipId = shipIdAndBeforeId.get(shipId);
-            return this.charIdAndLvSuffix(shipIdAndBeforeId, beforeShipId, count);
+            int beforeShipId = this.shipIdAndBeforeId.get(shipId);
+            return this.charIdAndLvSuffix(beforeShipId, count+1);
         }
 
         // 改造前の値がない場合はSimpleEntryを返す
@@ -112,8 +106,7 @@ public class KanmusuListGeneratorController extends WindowController {
     }
 
     private SimpleEntry<Integer, Integer> getCharIdAndLvSuffix(int shipId) {
-        Map<Integer, Integer> shipIdAndBeforeId = this.getShipIdAndBeforeId();
-        return this.charIdAndLvSuffix(shipIdAndBeforeId, shipId, 0);
+        return this.charIdAndLvSuffix(shipId, 1);
     }
 
 }
