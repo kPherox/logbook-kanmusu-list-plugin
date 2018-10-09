@@ -88,8 +88,8 @@ public class KanmusuListGeneratorController extends WindowController {
     private Map<Integer, Integer> generateShipIdAndBeforeId() {
         // マスターデータから改造前と後のMapを作成する
         Map<Integer, Integer> shipIdAndBeforeId = ShipMstCollection.get().getShipMap().values().stream()
-            .filter(ship -> ship.getAftershipid() != null && ship.getId() < ship.getAftershipid()) // 改造先がない、もしくはShipIDが改造先より大きい場合（コンバート改装）は含まない
-            .collect(toMap(ship -> ship.getAftershipid(), ship -> ship.getId()));
+            .filter(ship -> ship.getAftershipid() != null) // 改造先がない場合は含まない
+            .collect(toMap(ship -> ship.getAftershipid(), ship -> ship.getId(), (old, shipId) -> shipId > old ? old : shipId)); // 既に追加されていてShipIDが追加されているものより大きい場合（コンバート改装）は変更しない
 
         return shipIdAndBeforeId;
     }
