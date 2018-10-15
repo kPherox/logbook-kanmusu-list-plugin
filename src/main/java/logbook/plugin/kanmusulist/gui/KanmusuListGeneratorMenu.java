@@ -27,7 +27,7 @@ public class KanmusuListGeneratorMenu implements MainExtMenu {
 
             try {
                 Stage stage = new Stage();
-                URL url = KanmusuListGeneratorMenu.class.getClassLoader()
+                URL url = this.getClass().getClassLoader()
                         .getResource("kanmusulist/gui/KanmusuListGenerator.fxml");
                 FXMLLoader loader = new FXMLLoader(url);
                 loader.setClassLoader(PluginContainer.getInstance().getClassLoader());
