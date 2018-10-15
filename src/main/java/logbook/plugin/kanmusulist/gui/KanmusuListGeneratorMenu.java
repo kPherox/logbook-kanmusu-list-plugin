@@ -14,11 +14,17 @@ import logbook.plugin.PluginContainer;
 import logbook.plugin.gui.MainExtMenu;
 
 public class KanmusuListGeneratorMenu implements MainExtMenu {
+    private static Stage stage = null;
 
     @Override
     public MenuItem getContent() {
         MenuItem menu = new MenuItem("艦隊晒しフォーマット");
         menu.setOnAction(e -> {
+            if (this.stage != null) {
+                this.stage.toFront();
+                return;
+            }
+
             try {
                 Stage stage = new Stage();
                 URL url = KanmusuListGeneratorMenu.class.getClassLoader()
@@ -35,7 +41,9 @@ public class KanmusuListGeneratorMenu implements MainExtMenu {
                 Tools.Windows.setIcon(stage);
                 Tools.Windows.defaultCloseAction(controller);
                 Tools.Windows.defaultOpenAction(controller);
-                stage.show();
+                stage.setOnCloseRequest(event -> this.stage = null);
+                this.stage = stage;
+                this.stage.show();
             } catch (Exception ex) {
                 LoggerHolder.get().warn("艦隊晒しフォーマットを開けませんでした", ex);
             }
