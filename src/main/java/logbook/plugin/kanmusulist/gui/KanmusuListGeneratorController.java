@@ -20,13 +20,13 @@ import logbook.bean.ShipMst;
 import logbook.bean.ShipMstCollection;
 import logbook.internal.gui.WindowController;
 
+import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toMap;
 
 public class KanmusuListGeneratorController extends WindowController {
 
-    private String format = "";
-    private Map<Integer, Integer> shipIdAndBeforeId = new HashMap<>();
+    private Map<Integer, Integer> shipIdAndBeforeId = emptyMap();
 
     @FXML
     private Label result;
@@ -45,7 +45,7 @@ public class KanmusuListGeneratorController extends WindowController {
         this.create(event);
 
         ClipboardContent content = new ClipboardContent();
-        content.putString(this.format);
+        content.putString(this.kanmusuList.getText());
         boolean result = Clipboard.getSystemClipboard().setContent(content);
 
         this.result.setText(result ? "クリップボードにコピーしました！" : "クリップボードへのコピーに失敗しました");
@@ -76,7 +76,7 @@ public class KanmusuListGeneratorController extends WindowController {
             ships.get(charId).add(new SimpleEntry<>(lvSuffix, ship));
         }
 
-        this.format = ships.entrySet().stream()
+        String format = ships.entrySet().stream()
             .map(shipEntry -> shipEntry.getValue().stream()
                 .filter(ship -> shipEntry.getValue().size() == 1
                                 || !(this.exclusionDuplicateLv1.isSelected() && ship.getValue().getLv() == 1)
@@ -85,7 +85,7 @@ public class KanmusuListGeneratorController extends WindowController {
                 .collect(joining(",", shipEntry.getKey() + ":", "")))
             .collect(joining("|", ".2|", ""));
 
-        this.kanmusuList.setText(this.format);
+        this.kanmusuList.setText(format);
     }
 
     private void generateShipIdAndBeforeId() {
